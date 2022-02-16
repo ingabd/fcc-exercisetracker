@@ -2,9 +2,7 @@ require('dotenv').config()
 
 const express = require('express')
 const cors = require('cors')
-const mongoose = require('mongoose')
-
-
+const Controller = require('./controllers')
 
 const app = express()
 
@@ -16,25 +14,15 @@ app.get('/', (req, res) => {
 })
 
 
-app.post('/api/users', function (req, res) {
-  console.log('di post /api/users')
-})
+app.post('/api/users', Controller.postUser)
 
-app.get('/api/users', function (req, res) {
-  console.log('di get /api/users')
-})
+app.get('/api/users', Controller.getUsers)
 
-app.post('/api/users/:_id/exercises', function (req, res) {
-  console.log('di post exercises')
-})
+app.post('/api/users/:_id/exercises', Controller.postExercise)
 
-app.get('/api/users/:_id/logs', function (req, res) {
-  console.log('di get exercises logs count')
-})
+app.get('/api/users/:_id/logs', Controller.getLogsCount)
 
-app.get('/api/users/:id/logs', function (req, res) {
-  console.log('di get exercise logs array')
-})
+app.get('/api/users/:id/logs', Controller.getLogsArray)
 
 
 const listener = app.listen(process.env.PORT || 3000, () => {
