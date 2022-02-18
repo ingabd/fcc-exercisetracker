@@ -6,10 +6,7 @@ class Controller{
     try {
       const user = await User.create({ username })
       if (!user) throw { msg: 'FailedPostUser' }
-      res.status(201).json({
-        username: user.username,
-        _id: user._id
-      })
+      res.status(201).json(user)
     } catch (err) {
       console.log(err)
       res.status(500).json(err)
@@ -17,7 +14,7 @@ class Controller{
   }
   static async getUsers(req, res) {
     try {
-      const users = await User.find()
+      const users = await User.find().lean()
       res.status(200).json(users)
     } catch (err) {
       console.log(err)
@@ -30,7 +27,7 @@ class Controller{
     let { date } = req.body
     if (!date) date = undefined
     try {
-      const user = await User.findById(_id)
+      const user = await User.findById(_id).lean()
       if (!user) throw {msg: 'UserNotFound'}
       const exercise = await Exercise.create({
         username: user.username,
@@ -39,13 +36,9 @@ class Controller{
         date
       })
       if (!exercise) throw { msg: 'FailedPostExercise' }
-      res.status(201).json({
-        username: exercise.username,
-        description: exercise.description,
-        duration: exercise.duration,
-        date: exercise.date.toDateString(),
-        _id: user._id
-      })
+      const output = { ...user, ...exercise._doc }
+      output.date = output.date.toDateString()
+      res.status(201).json(output)
     } catch (err) {
       console.log(err)
       res.status(500).json(err)
@@ -54,17 +47,14 @@ class Controller{
   static async getLogsCount(req, res) {
     const { _id } = req.params
     try {
-      const user = await User.findById(_id)
+      let user = await User.findById(_id).lean()
       if (!user) throw {msg: 'UserNotFound'}
       const logs = await Exercise.find({
         username: user.username
-      })
-      const output = {
-        username: user.username,
-        count: logs.length,
-        _id: user._id
-      }
-      res.status(200).json(output)
+      }).lean()
+      user.count = logs.length
+      console.log(user)
+      res.status(200).json(user)
     } catch (err) {
       console.log(err)
       res.status(500).json(err)
