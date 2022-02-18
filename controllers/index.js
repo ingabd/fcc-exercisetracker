@@ -1,4 +1,4 @@
-const { Exercise, User, Log } = require('../models')
+const { Exercise, User } = require('../models')
 
 class Controller{
   static async postUser(req, res) {
@@ -39,7 +39,6 @@ class Controller{
         date
       })
       if (!exercise) throw { msg: 'FailedPostExercise' }
-      console.log(exercise)
       res.status(201).json(exercise)
     } catch (err) {
       console.log(err)
@@ -47,7 +46,23 @@ class Controller{
     }
   }
   static async getLogsCount(req, res) {
-    console.log('di get exercises logs count')
+    const { _id } = req.params
+    try {
+      const user = await User.findById(_id)
+      if (!user) throw {msg: 'UserNotFound'}
+      const logs = await Exercise.find({
+        username: user.username
+      })
+      const output = {
+        username: user.username,
+        count: logs.length,
+        _id: user._id
+      }
+      res.status(200).json(output)
+    } catch (err) {
+      console.log(err)
+      res.status(500).json(err)
+    }
   }
   static async getLogsArray(req, res) {
     console.log('di get exercise logs array')
