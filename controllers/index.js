@@ -4,11 +4,11 @@ class Controller{
   static async postUser(req, res) {
     const { username } = req.body
     try {
-      const created = await User.create({ username })
-      if (!created) throw { msg: 'FailedPostUser' }
+      const user = await User.create({ username })
+      if (!user) throw { msg: 'FailedPostUser' }
       res.status(201).json({
-        username: created.username,
-        _id: created._id
+        username: user.username,
+        _id: user._id
       })
     } catch (err) {
       console.log(err)
@@ -25,7 +25,26 @@ class Controller{
     }
   }
   static async postExercise(req, res) {
-    console.log('di post exercises')
+    const { _id } = req.params
+    const { description, duration } = req.body
+    let { date } = req.body
+    if (!date) date = undefined
+    try {
+      const user = await User.findById(_id)
+      if (!user) throw {msg: 'UserNotFound'}
+      const exercise = await Exercise.create({
+        username: user.username,
+        description,
+        duration,
+        date
+      })
+      if (!exercise) throw { msg: 'FailedPostExercise' }
+      console.log(exercise)
+      res.status(201).json(exercise)
+    } catch (err) {
+      console.log(err)
+      res.status(500).json(err)
+    }
   }
   static async getLogsCount(req, res) {
     console.log('di get exercises logs count')
