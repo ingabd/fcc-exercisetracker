@@ -25,7 +25,8 @@ class Controller{
     const { _id } = req.params
     const { description, duration } = req.body
     let { date } = req.body
-    if (!date) date = undefined
+    const checkDate = new Date(date)
+    if (!date || checkDate.toString() === 'Invalid Date') date = undefined
     try {
       const user = await User.findById(_id).lean()
       if (!user) throw {msg: 'UserNotFound'}
@@ -36,9 +37,11 @@ class Controller{
         date
       })
       if (!exercise) throw { msg: 'FailedPostExercise' }
-      const output = { ...user, ...exercise._doc }
-      output.date = output.date.toDateString()
-      res.status(201).json(output)
+      user.description = exercise.description
+      user.duration = exercise.duration
+      user.date = exercise.date.toDateString()
+      delete user.__v
+      res.status(201).json(user)
     } catch (err) {
       console.log(err)
       res.status(500).json(err)
@@ -53,7 +56,6 @@ class Controller{
         username: user.username
       }).lean()
       user.count = logs.length
-      console.log(user)
       res.status(200).json(user)
     } catch (err) {
       console.log(err)
