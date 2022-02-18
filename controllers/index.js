@@ -49,13 +49,24 @@ class Controller{
   }
   static async getLogs(req, res) {
     const { _id } = req.params
-    if (!_id) this.getLogsArray
+
+    const queries = req.query
+    let limit
+    const date = {
+      '$gte': '1900-01-01',
+      '$lte': new Date()
+    }
+    if (queries.from) date['$gte'] = queries.from
+    if (queries.to) date['$lte'] = queries.to
+    if (queries.limit) limit = queries.limit
+
     try {
       let user = await User.findById(_id).lean()
       if (!user) throw {msg: 'UserNotFound'}
       const logs = await Exercise.find({
-        username: user.username
-      }).lean()
+        username: user.username,
+        date
+      }).limit(Number(limit)).lean()
       delete user.__v
       user.count = logs.length
       logs.forEach(el => {
@@ -64,24 +75,6 @@ class Controller{
         delete el.__v
         el.date = el.date.toDateString()
       })
-      user.log = logs
-      res.status(200).json(user)
-    } catch (err) {
-      console.log(err)
-      res.status(500).json(err)
-    }
-  }
-  static async getLogsArray(req, res) {
-    const { id } = req.params
-    console.log(id)
-    try {
-      let user = await User.findById(id).lean()
-      if (!user) throw {msg: 'UserNotFound'}
-      const logs = await Exercise.find({
-        username: user.username
-      }).lean()
-      console.log(logs)
-      user.count = logs.length
       user.log = logs
       console.log(user)
       res.status(200).json(user)
