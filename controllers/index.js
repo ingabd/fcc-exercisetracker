@@ -39,7 +39,13 @@ class Controller{
         date
       })
       if (!exercise) throw { msg: 'FailedPostExercise' }
-      res.status(201).json(exercise)
+      res.status(201).json({
+        username: exercise.username,
+        description: exercise.description,
+        duration: exercise.duration,
+        date: exercise.date.toDateString(),
+        _id: user._id
+      })
     } catch (err) {
       console.log(err)
       res.status(500).json(err)
