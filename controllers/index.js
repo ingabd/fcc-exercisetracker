@@ -47,15 +47,24 @@ class Controller{
       res.status(500).json(err)
     }
   }
-  static async getLogsCount(req, res) {
+  static async getLogs(req, res) {
     const { _id } = req.params
+    if (!_id) this.getLogsArray
     try {
       let user = await User.findById(_id).lean()
       if (!user) throw {msg: 'UserNotFound'}
       const logs = await Exercise.find({
         username: user.username
       }).lean()
+      delete user.__v
       user.count = logs.length
+      logs.forEach(el => {
+        delete el.username
+        delete el._id
+        delete el.__v
+        el.date = el.date.toDateString()
+      })
+      user.log = logs
       res.status(200).json(user)
     } catch (err) {
       console.log(err)
@@ -63,7 +72,23 @@ class Controller{
     }
   }
   static async getLogsArray(req, res) {
-    console.log('di get exercise logs array')
+    const { id } = req.params
+    console.log(id)
+    try {
+      let user = await User.findById(id).lean()
+      if (!user) throw {msg: 'UserNotFound'}
+      const logs = await Exercise.find({
+        username: user.username
+      }).lean()
+      console.log(logs)
+      user.count = logs.length
+      user.log = logs
+      console.log(user)
+      res.status(200).json(user)
+    } catch (err) {
+      console.log(err)
+      res.status(500).json(err)
+    }
   }
 }
 

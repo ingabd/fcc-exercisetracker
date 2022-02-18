@@ -23,9 +23,9 @@ app.get('/api/users', Controller.getUsers)
 
 app.post('/api/users/:_id/exercises', Controller.postExercise)
 
-app.get('/api/users/:_id/logs', Controller.getLogsCount)
+app.get('/api/users/:_id/logs', Controller.getLogs)
 
-app.get('/api/users/:id/logs', Controller.getLogsArray)
+// app.get('/api/users/:id/logs', Controller.getLogsArray)
 // ===========================================================
 
 connect()
